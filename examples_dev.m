@@ -1,4 +1,11 @@
-%% gramm examples and how-tos
+% gramm examples and how-tos
+
+% Shared variable
+% We stat by loading the sample data (structure created from the carbig
+% dataset)
+load example_data;
+
+
 %% Example from the readme
 % Here we plot the evolution of fuel economy of new cars bewteen 1970 and 1980 (carbig
 % dataset). Gramm is used to easily separate groups on the basis of the number of
@@ -6,9 +13,7 @@
 % the cars (subplot columns). Both the raw data (points) and a glm fit with
 % 95% confidence interval (line+shaded area) are plotted. 
 %
-% We stat by loading the sample data (structure created from the carbig
-% dataset)
-load example_data;
+
 %%% 
 % Create a gramm object, provide x (year of production) and y (fuel economy) data,
 % color grouping data (number of cylinders) and select a subset of the data
@@ -31,7 +36,7 @@ g.set_names('column','Origin','x','Year of production','y','Fuel economy (MPG)',
 g.set_title('Fuel economy of new cars between 1970 and 1982');
 %%%
 % Do the actual drawing
-figure('Position',[100 100 800 400]);
+figure;
 g.draw();
 
 
@@ -93,7 +98,7 @@ g(3,2).set_names('x','Horsepower','y','MPG','column','# Cyl');
 g(3,2).set_title('subplot columns');
 
 
-figure('Position',[100 100 800 800]);
+figure;
 g.draw();
 
 %% Methods for visualizing Y~X relationships with X as categorical variable
@@ -144,11 +149,11 @@ g.set_title('Visualization of Y~X relationships with X as categorical variable')
 
 gf = copy(g);
 
-figure('Position',[100 100 800 550]);
+figure;
 g.draw();
 
 gf.set_title('Visualization of Y~X relationships with X as categorical variable and flipped coordinates');
-figure('Position',[100 100 800 550]);
+figure;
 gf.coord_flip();
 gf.draw();
 
@@ -189,7 +194,7 @@ g(2,2).set_title('stat_qq()');
 
 g.set_names('x','Horsepower','color','# Cyl','row','','y','');
 g.set_title('Visualization of X densities');
-figure('Position',[100 100 800 550]);
+figure;
 g.draw();
 
 
@@ -227,7 +232,7 @@ g(2,2).set_title('stat_summary(''bin_in'',10)');
 g.set_names('x','Horsepower','y','Acceleration','color','# Cylinders');
 
 %Corner histogram
-g(2,3)=gramm('x',(cars.Horsepower-nanmean(cars.Horsepower))/nanstd(cars.Horsepower),'y',-(cars.Acceleration-nanmean(cars.Acceleration))/nanstd(cars.Acceleration),'color',cars.Cylinders,'subset',cars.Cylinders~=3 & cars.Cylinders~=5);
+g(2,3)=gramm('x',(cars.Horsepower-mean(cars.Horsepower,'omitnan'))/std(cars.Horsepower,'omitnan'),'y',-(cars.Acceleration-mean(cars.Acceleration,'omitnan'))/std(cars.Acceleration,'omitnan'),'color',cars.Cylinders,'subset',cars.Cylinders~=3 & cars.Cylinders~=5);
 g(2,3).geom_point();
 g(2,3).stat_cornerhist('edges',-4:0.2:4,'aspect',0.6);
 g(2,3).geom_abline();
@@ -235,7 +240,7 @@ g(2,3).set_title('stat_cornerhist()');
 g(2,3).set_names('x','z(Horsepower)','y','-z(Acceleration)');
 
 g.set_title('Visualization of Y~X relationship with both X and Y as continuous variables');
-figure('Position',[100 100 800 550]);
+figure;
 g.draw();
 
 
@@ -246,7 +251,7 @@ g.draw();
 % dodging. |'ymin'| and |'ymax'| are absolute, and not given relative to
 % |'y'|
 
-cars_summary=rowfun(@(hp)deal(nanmean(hp),bootci(200,@(x)nanmean(x),hp)'),cars(cars.Cylinders~=3 & cars.Cylinders~=5,:),...
+cars_summary=rowfun(@(hp)deal(mean(hp,'omitnan'),bootci(200,@(x)mean(x,'omitnan'),hp)'),cars(cars.Cylinders~=3 & cars.Cylinders~=5,:),...
     'InputVariables',{'Horsepower'},...
     'GroupingVariables',{'Origin_Region' 'Cylinders'},...
     'OutputVariableNames',{'hp_mean' 'hp_ci'});
@@ -272,7 +277,7 @@ g(1,2).geom_interval('geom','errorbar','dodge',0.2,'width',0.8);
 %Shaded area
 g(1,3).geom_interval('geom','area');
 
-figure('Position',[100 100 800 450]);
+figure;
 g.axe_property('YLim',[-10 190]);
 g.draw();
 
@@ -330,7 +335,7 @@ g(2,2).set_title('geom_point(''alpha'',0.05)');
 
 g.set_title('Visualization of 2D densities');
 
-figure('Position',[100 100 800 600])
+figure
 g.draw();
 
 %% Methods for visualizing repeated trajectories
@@ -372,7 +377,7 @@ g(2,2).set_title('stat_summary()');
 
 g.set_title('Visualization of repeated trajectories ');
 
-figure('Position',[100 100 800 550]);
+figure;
 g.draw();
 
 %% Methods for visualizing repeated densities (e.g. spike densities)
@@ -407,7 +412,7 @@ g(1,2).set_title('stat_bin()');
 g.set_names('x','Time','y','');
 g.set_title('Visualization of spike densities');
 
-figure('Position',[100 100 800 350]);
+figure;
 g.draw();
 
 %% Options for separating groups across subplots with facet_grid()
@@ -488,11 +493,11 @@ g.set_names('column','','row','');
 
 gf = copy(g);
 
-figure('Position',[100 100 800 800]);
+figure;
 g.set_title('facet_grid() options');
 g.draw();
 
-figure('Position',[100 100 800 800]);
+figure;
 gf.set_title({'facet_grid() options' 'work together with coord_flip()'});
 gf.coord_flip();
 gf.draw();
@@ -544,16 +549,20 @@ g5(2,3).set_title('''stairs''');
 
 g5.set_title('''geom'' options for stat_bin()');
 
-figure('Position',[100 100 800 600]);
+figure;
 g5.draw();
 
-%%
-% Example of alternative |'fill'| options
+%% Example of alternative |'fill'| options
 %
 % * |'face'|
 % * |'all'|
 % * |'edge'|
 % * |'transparent'|
+
+%Create variables
+x=randn(1200,1)-1;
+cat=repmat([1 1 1 2],300,1);
+x(cat==2)=x(cat==2)+2;
 
 clear g6
 g6(1,1)=gramm('x',x,'color',cat);
@@ -585,11 +594,11 @@ g6(2,3).set_title('''all''');
 
 g6.set_title('''fill'' options for stat_bin()');
 
-figure('Position',[100 100 800 600]);
+figure;
 g6.draw();
 
-%%
-% Examples of other histogram-generation options
+
+%% Examples of other histogram-generation options
 %
 % * Default binning
 % * |'normalization','probability'|
@@ -597,6 +606,11 @@ g6.draw();
 % * |'normalization','cdf'|
 % * |'edges',-1:0.5:10|
 % * |'normalization','countdensity'| and custom edges
+
+%Create variables
+x=randn(1200,1)-1;
+cat=repmat([1 1 1 2],300,1);
+x(cat==2)=x(cat==2)+2;
 
 clear g7
 g7(1,1)=gramm('x',x,'color',cat);
@@ -631,7 +645,7 @@ g7(2,3).set_title({'''normalization'',''countdensity'',' '''edges'',' '[-5 -4 -2
 
 g7.set_title('Other options for stat_bin()');
 
-figure('Position',[100 100 800 600]);
+figure;
 g7.draw();
 
 %% Visualize x-y difference with inset histogram using stat_cornerhist()
@@ -654,7 +668,7 @@ g.stat_cornerhist('edges',-4:0.1:2,'aspect',0.5);
 g.geom_abline();
 
 g.set_title('Visualize x-y with stat_cornerhist()');
-figure('Position',[100 100 800 600]);
+figure;
 g.draw();
 
 %Possibility to use axe handles of the inset axes to add elements or change
@@ -697,7 +711,7 @@ g(2,3).set_title('with stat_boxplot()');
 g(2,3).set_color_options('map','brewer_dark');
 
 g.set_title('Options for stat_violin()');
-figure('Position',[100 100 800 600]);
+figure;
 g.draw();
 
 
@@ -712,7 +726,7 @@ c=categorical(c);
 x=categorical(x);
 c(x=="0" & c=="0") = "2";
 
-figure('Position',[100 100 1800 800]);
+figure;
 clear g
 g(1,1)=gramm('x',x,'y',y,'color',c);
 g(1,2) = copy(g(1,1));
@@ -722,7 +736,7 @@ g(2,2) = copy(g(1,1));
 g(2,3) = copy(g(1,1));
 
 g(1,1).geom_swarm('point_size',2);
-g(1,1).stat_summary('geom','point','dodge',0.7,'width',0.9)
+g(1,1).stat_summary('geom','point','dodge',0.7,'width',0.9);
 g(1,1).set_title('default method ''up''');
 
 g(1,2).geom_swarm('point_size',2,'type','fan');
@@ -793,13 +807,10 @@ g(5,1).set_title('''width'',0.5,''dodge'',0,''notch'',true');
 
 g.set_title('Dodge and spacing options for stat_boxplot()');
 
-figure('Position',[100 100 800 1000]);
+figure;
 g.draw();
 
-%%
 % With |stat_summary()|, |'width'| controls the width of bars and error bars.
-
-
 
 clear g
 g(1,1)=gramm('x',catx,'y',y,'color',c);
@@ -830,7 +841,7 @@ g(5,1).set_title('''width'',0.5,''dodge'',0');
 
 g.set_title('Dodge and width options for stat_summary()');
 
-figure('Position',[100 100 800 1000]);
+figure;
 g.draw();
 
 %% Plotting text or labeling with geom_label()
@@ -840,7 +851,7 @@ g.draw();
 %Create short version of model names by removing manufacturer
 cars.ModelShort=cellfun(@(ma,mo)mo(length(ma)+1:end),cars.Manufacturer,cars.Model,'UniformOutput',false);
 
-figure('Position',[100 100 800 500]);
+figure;
 clear g
 %Provide 'label' as data
 g=gramm('x',cars.Horsepower,'y',cars.Acceleration,...
@@ -854,7 +865,7 @@ g.set_color_options('map','brewer2');
 g.draw();
 
 % geom_label works when 3D data is provided
-figure('Position',[100 100 800 500]);
+figure;
 g=gramm('x',cars.Horsepower,'y',cars.Acceleration,'z',cars.MPG,...
     'label',cars.ModelShort,'color',cars.Manufacturer,'subset',strcmp(cars.Origin_Region,'Japan'));
 g.geom_label('VerticalAlignment','middle','HorizontalAlignment','center','BackgroundColor','auto','Color','k');
@@ -864,7 +875,7 @@ g.set_color_options('map','brewer2');
 g.draw();
 
 
-figure('Position',[100 100 800 500]);
+figure;
 clear g
 %Compute number of models outside of gramm so that the output can be used
 %as label
@@ -882,7 +893,7 @@ y=sin(exp(x-5)/12);
 y(x<2)=y(x<2)+randn(1,sum(x<2))/2;
 y(x>=2)=y(x>=2)+randn(1,sum(x>=2))/8;
 
-figure('Position',[100 100 800 500]);
+figure;
 clear g
 g=gramm('x',x,'y',y);
 g.geom_funline('fun',@(x)sin(exp(x-5)/12));
@@ -925,7 +936,7 @@ g.draw();
 % change the color options so that the fit appears in grey
 
 clear g10
-figure('Position',[100 100 600 450]);
+figure;
 g10=gramm('x',cars.Horsepower,'y',cars.Acceleration,'subset',cars.Cylinders~=3 & cars.Cylinders~=5);
 g10.set_names('color','# Cylinders','x','Horsepower','y','Acceleration','Column','Origin');
 g10.set_color_options('chroma',0,'lightness',30);
@@ -934,7 +945,6 @@ g10.set_title('Update example'); %Title must be provided before the first draw()
 g10.draw();
 snapnow;
 
-%%
 % After the first draw() call (optional), we call the update() method by specifying a
 % new grouping variable determining colors. We also change the facet_grid()
 % options, which will duplicate the fit made earlier across all new facets.
@@ -953,7 +963,7 @@ g10.draw();
 load fisheriris.mat
 
 clear g
-figure('Position',[100 100 800 600]);
+figure;
 %Create an histogram of all the data in the background (no facet_ is given yet)
 g(1,1)=gramm('x',meas(:,2));
 g(1,1).set_names('x','Sepal Width','column','');
@@ -996,7 +1006,7 @@ g.draw();
 load fisheriris.mat
 
 clear g
-figure('Position',[100 100 550 550]);
+figure;
 
 %Create x data histogram on top
 g(1,1)=gramm('x',meas(:,2),'color',species);
@@ -1056,7 +1066,7 @@ g.set_names('y','MPG','x','Value','column','','color','HP','marker','# Cylinders
 g.geom_point();
 
 g.axe_property('TickDir','out','XGrid','on','Ygrid','on','GridColor',[0.5 0.5 0.5]);
-figure('Position',[100 100 700 350]);
+figure;
 g.draw();
 
 %% Create a broken axis
@@ -1072,7 +1082,7 @@ g(2,1)=gramm('x',x,'y',y);
 g(2,1).facet_grid([],x>20,"scale","free_x","space","free_x","column_labels",false);
 g(2,1).geom_point();
 g(2,1).set_title('With broken axis');
-figure('Position',[100 100 800 600]);
+figure;
 g.draw();
 g(2,1).facet_axes_handles(2).YAxis.Visible='off';
 g(2,1).facet_axes_handles(1).XLim=[-5 6];
@@ -1127,7 +1137,7 @@ g.axe_property('XTickLabelRotation',60); %Should work for recent Matlab versions
 g.set_names('x','Origin','y','Horsepower','color','Origin','lightness','Origin');
 g.set_title('Colormap customizations examples');
 
-figure('Position',[100 100 800 600])
+figure
 g.draw();
 
 %% Customizing color/lightness maps  and legends with set_color_options()
@@ -1184,7 +1194,7 @@ g.axe_property('XTickLabelRotation',60); %Should work for recent Matlab versions
 g.set_names('x','Origin','y','Horsepower','color','Origin','marker','Origin','lightness','# Cyl');
 g.set_title('Color/Lightness maps and legend customizations examples');
 
-figure('Position',[100 100 800 600]);
+figure;
 g.draw();
 
 %% Using a continuous color scale
@@ -1200,7 +1210,7 @@ g18=gramm('x',900:2:1700,'y',NIR,'color',octane);
 g18.set_names('x','Wavelength (nm)','y','NIR','color','Octane');
 g18.set_continuous_color('colormap','hot');
 g18.geom_line;
-figure('Position',[100 100 800 450]);
+figure;
 g18.draw();
 
 %% Changing the order of elements with set_order_options()
@@ -1255,7 +1265,7 @@ g(2,3).set_title({'x in input order' 'lightness in custom order'});
 g.set_names('x','US size','y','EU size','lightness','US size');
 g.axe_property('YLim',[0 48]);
 
-figure('Position',[100 100 800 600]);
+figure;
 g.draw();
 
 %% Customize the size and style of graphic elements with set_line_options() and set_point_options()
@@ -1303,7 +1313,7 @@ g(2,3).set_title('Size according to value');
 
 g.set_title('Customization of line and point options');
 
-figure('Position',[100 100 1000 600]);
+figure;
 g.draw();
 
 %% Decorate plot backgrounds with geom_polygon()
@@ -1342,7 +1352,7 @@ g(2,2).geom_polygon('x',{[72 80 76]},'y',{[22 22 28]}); %Default is grey
 
 g.set_title('Decorate plot backgrounds with geom_polygon()');
 
-figure('Position',[100 100 800 600]);
+figure;
 g.draw();
 
 
@@ -1367,7 +1377,7 @@ g.draw();
 % axes are drawn by using the |set_parent(parent_handle)| function, which receives the
 % handle of a figure/uipanel/uitab object to use as parent as argument.
 
-f=figure('Position',[100 100 800 500]);
+f=figure;
 %Create fake button
 c=uicontrol('Style','pushbutton','String','Dummy','Units','normalized','Position',[0.8 0.45 0.15 0.1]);
 %Create uipanel to put our gramm plots
@@ -1419,6 +1429,9 @@ g11.geom_line();
 g11.draw();
 
 %%
+Y=[1 2 3 4 5 2 3 4 5 6 3 4 5 6 7];
+X=[1 2 3 4 5 0 1 2 3 4 -1 0 1 2 3];
+C=[1 1 1 1 1 2 2 2 2 2 2 2 2 2 2];
 % Adding a group variable solves the problem in a ggplot-like way
 G=[1 1 1 1 1 2 2 2 2 2 3 3 3 3 3];
 figure
@@ -1440,6 +1453,8 @@ g13.draw();
 %%
 % If all X values are the same, it's possible to provide X as a single row
 X=[1 2 3 4 5];
+Y=[1 2 3 4 5;2 3 4 5 6; 3 4 5 6 7];
+C=[1 2 2];
 figure
 g14=gramm('x',X,'y',Y,'color',C);
 g14.geom_line();
@@ -1449,6 +1464,7 @@ g14.draw();
 % Similar results can be obtained with cells of arrays
 Y={[1 2 3 4 5] [2 3 4 5 6] [3 4 5 6 7]};
 X={[1 2 3 4 5] [0 1 2 3 4] [-1 0 1 2 3]};
+C=[1 2 2];
 figure
 g15=gramm('x',X,'y',Y,'color',C);
 g15.geom_line();
@@ -1466,6 +1482,7 @@ g16.draw();
 % for different groups
 Y={[1 2 3 4 5] [3 4 5] [3 4 5 6 7]};
 X={[1 2 3 4 5] [1 2 3] [-1 0 1 2 3]};
+C=[1 2 2];
 figure
 g17=gramm('x',X,'y',Y,'color',C);
 g17.geom_line();
@@ -1474,7 +1491,7 @@ g17.draw();
 
 %% Raw matlab code equivalent to the first figure (in paper.md)
 
-figure('Position',[100 100 800 400],'Color',[1 1 1]);
+figure('Color',[1 1 1]);
 
 % Define groups
 cyl = [4 6 8]; % Manually
