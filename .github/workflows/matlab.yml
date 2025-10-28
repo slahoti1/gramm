@@ -49,6 +49,7 @@ jobs:
           path: |
             testresults.html
             coverageresults.html
+            release/
 
       # Alternatively, run MATLAB scripts, functions, and statements.
       # - name: Run MATLAB command
