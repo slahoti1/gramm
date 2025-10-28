@@ -26,7 +26,7 @@ jobs:
           cache: true
           # Set up additional products using the products input.
           # See https://github.com/matlab-actions/setup-matlab/#set-up-matlab
-          # products: Simulink Deep_Learning_Toolbox
+          products: Statistics_and_Machine_Learning_Toolbox Curve_Fitting_Toolbox
 
       # Run tests authored using the MATLAB unit testing framework or Simulink Test.
       #- name: Run MATLAB tests
