@@ -3,6 +3,7 @@
 % Shared variable
 % We stat by loading the sample data (structure created from the carbig
 % dataset)
+addpath('sample_data/');
 load example_data;
 
 
