@@ -41,6 +41,15 @@ jobs:
       #   with:
       #     tasks: test
 
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            testresults.html
+            coverageresults.html
+
       # Alternatively, run MATLAB scripts, functions, and statements.
       # - name: Run MATLAB command
       #   uses: matlab-actions/run-command@v2
