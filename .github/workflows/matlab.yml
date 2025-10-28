@@ -36,8 +36,8 @@ jobs:
         #   source-folder: myfolderA; myfolderB
 
       # Alternatively, run tasks from your buildfile.m.
-       - name: Run MATLAB build
-         uses: matlab-actions/run-build@v2
+      - name: Run MATLAB build
+        uses: matlab-actions/run-build@v2
       #   with:
       #     tasks: test
 
