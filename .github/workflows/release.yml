@@ -25,11 +25,11 @@ jobs:
           products: Statistics_and_Machine_Learning_Toolbox Curve_Fitting_Toolbox
 
       - name: Build toolbox
-        uses: matlab-actions/run-command@v2
+        uses: matlab-actions/run-build@v2
+        env:
+          CI_COMMIT_TAG: ${{ github.ref_name }}
         with:
-          command: |
-            version = erase('${{ github.ref_name }}', 'v');
-            createMLTBX('gramm.prj', version);
+          tasks: package
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
