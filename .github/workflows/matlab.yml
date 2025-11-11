@@ -38,8 +38,8 @@ jobs:
       # Alternatively, run tasks from your buildfile.m.
       - name: Run MATLAB build
         uses: matlab-actions/run-build@v2
-      #   with:
-      #     tasks: test
+        with:
+           tasks: examples
 
       - name: Upload test results
         if: always()
