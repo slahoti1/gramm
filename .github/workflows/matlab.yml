@@ -26,7 +26,7 @@ jobs:
           cache: true
           # Set up additional products using the products input.
           # See https://github.com/matlab-actions/setup-matlab/#set-up-matlab
-          products: Statistics_and_Machine_Learning_Toolbox Curve_Fitting_Toolbox
+          products: Statistics_and_Machine_Learning_Toolbox Curve_Fitting_Toolbox ExampleDrivenTester
 
       # Run tests authored using the MATLAB unit testing framework or Simulink Test.
       #- name: Run MATLAB tests
@@ -39,7 +39,7 @@ jobs:
       - name: Run examples as test
         uses: matlab-actions/run-build@v2
         with:
-           tasks: package
+           tasks: examples
 
 
       - name: Upload test results
