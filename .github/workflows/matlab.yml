@@ -39,7 +39,7 @@ jobs:
       - name: Run examples as test
         uses: matlab-actions/run-build@v2
         with:
-           tasks: examples
+           tasks: package
 
 
       - name: Upload test results
