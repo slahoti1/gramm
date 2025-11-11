@@ -36,10 +36,11 @@ jobs:
         #   source-folder: myfolderA; myfolderB
 
       # Alternatively, run tasks from your buildfile.m.
-      - name: Run MATLAB build
+      - name: Run examples as test
         uses: matlab-actions/run-build@v2
         with:
            tasks: examples
+
 
       - name: Upload test results
         if: always()
