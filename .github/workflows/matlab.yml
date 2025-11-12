@@ -26,7 +26,7 @@ jobs:
           cache: true
           # Set up additional products using the products input.
           # See https://github.com/matlab-actions/setup-matlab/#set-up-matlab
-          products: Statistics_and_Machine_Learning_Toolbox Curve_Fitting_Toolbox ExampleDrivenTester
+          products: Statistics_and_Machine_Learning_Toolbox Curve_Fitting_Toolbox
 
       # Run tests authored using the MATLAB unit testing framework or Simulink Test.
       #- name: Run MATLAB tests
@@ -34,13 +34,22 @@ jobs:
         # If you are not using a MATLAB project, add your source code to the path using the source-folder input.
         # with:
         #   source-folder: myfolderA; myfolderB
+      - name: Download ExamplesDrivenTester Toolbox
+        run: |
+          wget https://github.com/mathworks/ExamplesDrivenTester/releases/download/v0.91/ExamplesDrivenTester_v0.91.mltbx
+    
+      - name: Install Toolbox in MATLAB
+        uses: matlab-actions/run-command@v1
+        with:
+          command: |
+            matlab.addons.install('ExamplesDrivenTester_v0.91.mltbx');
+            % Optionally verify installation
+            disp('Toolbox installed!');
 
-      # Alternatively, run tasks from your buildfile.m.
       - name: Run examples as test
         uses: matlab-actions/run-build@v2
         with:
            tasks: examples
-
 
       - name: Upload test results
         if: always()
@@ -49,11 +58,5 @@ jobs:
           name: test-results
           path: |
             test-report/index.html
-            coverageresults.html
+            coverage-report/index.html
             release/
-
-      # Alternatively, run MATLAB scripts, functions, and statements.
-      # - name: Run MATLAB command
-      #   uses: matlab-actions/run-command@v2
-      #   with:
-      #     command: results = runtests('IncludeSubfolders',true); assertSuccess(results);
