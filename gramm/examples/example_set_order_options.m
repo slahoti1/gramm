@@ -3,7 +3,6 @@
 % Shared variable
 % We stat by loading the sample data (structure created from the carbig
 % dataset)
-addpath('sample_data/','gramm/');
 load example_data;
 
 %% Changing the order of elements with set_order_options()

@@ -3,7 +3,6 @@
 % Shared variable
 % We stat by loading the sample data (structure created from the carbig
 % dataset)
-addpath('sample_data/','gramm/');
 load example_data;
 
 %% Customize the size and style of graphic elements with set_line_options() and set_point_options()

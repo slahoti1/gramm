@@ -3,7 +3,6 @@
 % Shared variable
 % We stat by loading the sample data (structure created from the carbig
 % dataset)
-addpath('sample_data/','gramm/');
 load example_data;
 
 %% Customizing color/lightness maps  and legends with set_color_options()

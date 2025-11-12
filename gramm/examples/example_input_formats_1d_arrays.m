@@ -3,7 +3,6 @@
 % Shared variable
 % We stat by loading the sample data (structure created from the carbig
 % dataset)
-addpath('sample_data/','gramm/');
 load example_data;
 
 %% Using different input formats for x and y (1D arrays, cells of arrays, 2D arrays)

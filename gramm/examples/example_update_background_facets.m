@@ -2,8 +2,7 @@
 
 % Shared variable
 % We stat by loading the sample data (structure created from the carbig
-% dataset)
-addpath('sample_data/','gramm/');
+% dataset));
 load example_data;
 
 %% Superimposing gramm plots with update(): Plotting all the data in the background of facets

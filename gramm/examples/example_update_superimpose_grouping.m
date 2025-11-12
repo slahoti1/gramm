@@ -3,7 +3,6 @@
 % Shared variable
 % We stat by loading the sample data (structure created from the carbig
 % dataset)
-addpath('sample_data/','gramm/');
 load example_data;
 
 %% Superimposing gramm plots with update(): Using different groups for different stat_ and geom_ methods

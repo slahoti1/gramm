@@ -3,7 +3,6 @@
 % Shared variable
 % We stat by loading the sample data (structure created from the carbig
 % dataset)
-addpath('sample_data/','gramm/');
 load example_data;
 %% Plot one variable against many others
 %Inspired by: https://drsimonj.svbtle.com/plot-some-variables-against-many-others
