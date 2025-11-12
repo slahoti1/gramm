@@ -36,7 +36,7 @@ jobs:
         #   source-folder: myfolderA; myfolderB
       - name: Download ExamplesDrivenTester Toolbox
         run: |
-          wget https://github.com/mathworks/ExamplesDrivenTester/releases/download/v0.91/ExamplesDrivenTester_v0.91.mltbx
+          wget https://github.com/mathworks/ExamplesDrivenTester/releases/download/v0.91/ExamplesDrivenTester.mltbx
     
       - name: Install Toolbox in MATLAB
         uses: matlab-actions/run-command@v1
