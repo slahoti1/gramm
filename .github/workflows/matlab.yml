@@ -42,7 +42,7 @@ jobs:
         uses: matlab-actions/run-command@v1
         with:
           command: |
-            matlab.addons.install('ExamplesDrivenTester_v0.91.mltbx');
+            matlab.addons.install('ExamplesDrivenTester.mltbx');
             % Optionally verify installation
             disp('Toolbox installed!');
 
