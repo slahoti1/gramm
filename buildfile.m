@@ -6,23 +6,16 @@ plan = buildplan(localfunctions);
 
 plan("clean") = CleanTask;
 plan("check") = CodeIssuesTask(Results="issues.mat");
-plan("test") = TestTask("test_examples_dev.m",SourceFiles=["gramm/@gramm/*.m" "gramm/@gramm/private/*.m"], ...
-    TestResults = "test-report\index.html").addCodeCoverage("coverageresults.html");
 
-plan("package") = Task( ...
-    Description = "Package the toolbox", ...
-    Actions     = @(context) createPackage());
+plan("package").Description = "Package the toolbox";
 
-plan("examples") = Task( ...
-    Description = "Run the examples", ...
-    Actions     = @(context) runExamples() ...
-);
+plan("examples").Description = "Run the examples";
 plan("examples").Actions(end+1) = @(~)open(fullfile("test-report","index.html"));
 
 plan.DefaultTasks = ["check" "test"];
 end
 
-function createPackage ()
+function packageTask(context)
 
     packagingData = matlab.addons.toolbox.ToolboxOptions("gramm.prj");
     % Update the version number
@@ -42,7 +35,9 @@ function createPackage ()
     fprintf("Created %s.\n", outputFileName);
 end
 
-function runExamples()
-    obj = examplesTester("gramm/examples");
+function examplesTask(context)
+    reportFormat = matlab.unittest.plugins.codecoverage.CoverageReport('coverage-report');
+    covPlugin = matlab.unittest.plugins.CodeCoveragePlugin.forFolder("gramm","Producing",  reportFormat);
+    obj = examplesTester("gramm/examples", CodeCoveragePlugin = covPlugin);
     obj.executeTests;
 end
