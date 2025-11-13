@@ -36,20 +36,20 @@ jobs:
             % Optionally verify installation
             disp('Toolbox installed!');
 
-       - name: Check for dependencies
+      - name: Check for dependencies
         uses: matlab-actions/run-build@v2
         with:
-           tasks: checkDependencies
+          tasks: checkDependencies
 
       - name: Run examples as test
         uses: matlab-actions/run-build@v2
         with:
-           tasks: examples
+          tasks: examples
 
       - name: Publish the documents
         uses: matlab-actions/run-build@v2
         with:
-           tasks: publish
+          tasks: publish
 
       - name: package toolbox
         uses: matlab-actions/run-build@v2
