@@ -24,6 +24,16 @@ jobs:
           cache: true
           products: Statistics_and_Machine_Learning_Toolbox Curve_Fitting_Toolbox
 
+      - name: Run examples as test
+        uses: matlab-actions/run-build@v2
+        with:
+           tasks: examples
+
+      - name: Publish the documents
+        uses: matlab-actions/run-build@v2
+        with:
+           tasks: publish
+
       - name: package toolbox
         uses: matlab-actions/run-build@v2
         env:
