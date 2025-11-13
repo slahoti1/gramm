@@ -36,6 +36,11 @@ jobs:
             % Optionally verify installation
             disp('Toolbox installed!');
 
+       - name: Check for dependencies
+        uses: matlab-actions/run-build@v2
+        with:
+           tasks: checkDependencies
+
       - name: Run examples as test
         uses: matlab-actions/run-build@v2
         with:

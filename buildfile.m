@@ -39,43 +39,79 @@ function examplesTask(context)
     obj.executeTests();
 end
 
+function checkDependenciesTask(context)
+%Identify the missing dependencies
+    % Read dependencies.json
+    deps = jsondecode(fileread('dependencies.json'));
+    required = string({deps.products.name});
+
+    % Get installed addons/toolboxes
+    T = matlab.addons.installedAddons;
+    installed = T.Name;
+
+    % Check for missing dependencies
+    missing = {};
+    for i = 1:numel(required)
+        reqName = required(i);
+        reqNameAlt = strrep(reqName, '_', ' '); % For MathWorks toolboxes
+
+        found = any(strcmp(reqName, installed)) || any(strcmp(reqNameAlt, installed));
+        if ~found
+            missing{end+1} = char(reqName); %#ok<AGROW>
+        end
+    end
+
+    if ~isempty(missing)
+        result = "Missing toolboxes: " + strjoin(missing, ", ");
+        error(result); % Fails the build task
+    else
+        result = "All dependencies present.";
+        disp(result);
+    end
+end
+
+
+
 function publishTask(context)
-% Generate the html files 
-    
-    %Export the files to html
-    files = dir('gramm/doc/*.mlx');
-    destDir = fullfile(pwd, 'gramm', 'html'); % Absolute path to gramm/html
-    for k = 1:numel(files)
-        [~, name] = fileparts(files(k).name); % Get base filename without extension
-        src = fullfile(files(k).folder, files(k).name); % Absolute source path
-        dest = fullfile(destDir, [name '.html']);       % Absolute destination path
+    % Generate the html files
+
+    import matlab.buildtool.io.FileCollection
+
+    % Use FileCollection to get .mlx files
+    fcMlx = FileCollection.fromPaths("gramm/doc/*.mlx");
+    mlxFiles = fcMlx.paths;
+    destDir = fullfile(pwd, 'gramm', 'html');
+    for k = 1:numel(mlxFiles)
+        [~, name] = fileparts(mlxFiles{k});
+        src = mlxFiles{k};
+        dest = fullfile(destDir, [name '.html']);
         export(src, dest, Run=true);
     end
 
-    %move the mngs from doc to image folder
-    srcDir = fullfile(pwd, 'gramm', 'doc');
+    % Move the pngs from doc to image folder
     dstDir = fullfile(pwd, 'images');
-    files = dir(fullfile(srcDir, '*.png'));
-    for k = 1:numel(files)
-        src = fullfile(files(k).folder, files(k).name);
-        dst = fullfile(dstDir, files(k).name);
+    fcPng = FileCollection.fromPaths("gramm/doc/*.png");
+    pngFiles = fcPng.paths;
+    for k = 1:numel(pngFiles)
+        [~, name] = fileparts(pngFiles{k});
+        src = pngFiles{k};
+        dst = fullfile(dstDir, [name '.png']);
         movefile(src, dst);
     end
 
-    %We need to run it again to have correctly sized figures in the html pages
-    files = dir('gramm/doc/*.mlx');
-    destDir = fullfile(pwd, 'gramm', 'html'); % Absolute path to gramm/html
-    for k = 1:numel(files)
-        [~, name] = fileparts(files(k).name); % Get base filename without extension
-        src = fullfile(files(k).folder, files(k).name); % Absolute source path
-        dest = fullfile(destDir, [name '.html']);       % Absolute destination path
+    % We need to run it again to have correctly sized figures in the html pages
+    % (repeat for .mlx files)
+    for k = 1:numel(mlxFiles)
+        [~, name] = fileparts(mlxFiles{k});
+        src = mlxFiles{k};
+        dest = fullfile(destDir, [name '.html']);
         export(src, dest);
     end
 
-    %Remove downloaded sample data files
-    matfiles = dir('gramm/doc/*.mat');
-    for k = 1:numel(matfiles)
-        fileAbs = fullfile(matfiles(k).folder, matfiles(k).name);
-        delete(fileAbs);
+    % Remove downloaded sample data files
+    fcMat = FileCollection.fromPaths("gramm/doc/*.mat");
+    matFiles = fcMat.paths;
+    for k = 1:numel(matFiles)
+        delete(matFiles{k});
     end
 end
