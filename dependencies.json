@@ -1,13 +1,7 @@
 {
-  "products": [
-    {
-      "name": "Statistics_and_Machine_Learning_Toolbox"
-    },
-    {
-      "name": "Curve_Fitting_Toolbox"
-    },
-    {
-      "name": "ExamplesDrivenTester"
-    }
+  "products": [ 
+    "Statistics_and_Machine_Learning_Toolbox",  
+    "Curve_Fitting_Toolbox", 
+    "ExamplesDrivenTester"
   ]
 }

@@ -43,7 +43,7 @@ function checkDependenciesTask(context)
 %Identify the missing dependencies
     % Read dependencies.json
     deps = jsondecode(fileread('dependencies.json'));
-    required = string({deps.products.name});
+    required = string(deps.products);
 
     % Get installed addons/toolboxes
     T = matlab.addons.installedAddons;
@@ -65,7 +65,7 @@ function checkDependenciesTask(context)
         result = "Missing toolboxes: " + strjoin(missing, ", ");
         error(result); % Fails the build task
     else
-        result = "All dependencies present.";
+        result = "All dependencies are present.";
         disp(result);
     end
 end
