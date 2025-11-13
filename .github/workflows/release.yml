@@ -24,6 +24,18 @@ jobs:
           cache: true
           products: Statistics_and_Machine_Learning_Toolbox Curve_Fitting_Toolbox
 
+      - name: Download ExamplesDrivenTester Toolbox
+        run: |
+          wget https://github.com/mathworks/ExamplesDrivenTester/releases/download/v0.91/ExamplesDrivenTester.mltbx
+    
+      - name: Install Toolbox in MATLAB
+        uses: matlab-actions/run-command@v1
+        with:
+          command: |
+            matlab.addons.install('ExamplesDrivenTester.mltbx');
+            % Optionally verify installation
+            disp('Toolbox installed!');
+
       - name: Run examples as test
         uses: matlab-actions/run-build@v2
         with:
