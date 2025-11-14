@@ -28,23 +28,10 @@ jobs:
           # See https://github.com/matlab-actions/setup-matlab/#set-up-matlab
           products: Statistics_and_Machine_Learning_Toolbox Curve_Fitting_Toolbox
 
-      # Run tests authored using the MATLAB unit testing framework or Simulink Test.
-      #- name: Run MATLAB tests
-      #  uses: matlab-actions/run-tests@v2
-        # If you are not using a MATLAB project, add your source code to the path using the source-folder input.
-        # with:
-        #   source-folder: myfolderA; myfolderB
-      - name: Download ExamplesDrivenTester Toolbox
-        run: |
-          wget https://github.com/mathworks/ExamplesDrivenTester/releases/download/v0.91/ExamplesDrivenTester.mltbx
-    
-      - name: Install Toolbox in MATLAB
-        uses: matlab-actions/run-command@v1
+      - name: Get Additional Add-ons
+        uses: matlab-actions/run-build@v2
         with:
-          command: |
-            matlab.addons.install('ExamplesDrivenTester.mltbx');
-            % Optionally verify installation
-            disp('Toolbox installed!');
+          tasks: getExamplesDrivenTester
 
       - name: Check for dependencies
         uses: matlab-actions/run-build@v2

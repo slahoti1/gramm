@@ -35,42 +35,51 @@ function examplesTask(context)
 % Run the examples as test
     reportFormat = matlab.unittest.plugins.codecoverage.CoverageReport('coverage-report');
     covPlugin = matlab.unittest.plugins.CodeCoveragePlugin.forFolder("gramm","Producing",  reportFormat);
-    obj = examplesTester("gramm/examples", CodeCoveragePlugin = covPlugin);
-    obj.executeTests();
+    etObj = examplesTester("gramm/examples", CodeCoveragePlugin = covPlugin);
+    etObj.executeTests();
 end
 
 function checkDependenciesTask(context)
 %Identify the missing dependencies
-    % Read dependencies.json
-    deps = jsondecode(fileread('dependencies.json'));
+    
+    % Check if dependencies.json exists
+    depFile = 'dependencies.json';
+    if ~isfile(depFile)
+        error('Dependency file "%s" not found in the current directory.', depFile);
+    end
+
+    % Try to read and decode the JSON
+    try
+        deps = jsondecode(fileread(depFile));
+    catch ME
+        error('Failed to read or parse "%s": %s', depFile, ME.message);
+    end
+
+    % Check that the .products field exists 
+    if ~isfield(deps, 'products')
+        error('"%s" is missing the required "products" field.', depFile);
+    end
+
     required = string(deps.products);
 
     % Get installed addons/toolboxes
-    T = matlab.addons.installedAddons;
-    installed = T.Name;
+    installed = matlab.addons.installedAddons().Name;
 
-    % Check for missing dependencies
-    missing = {};
-    for i = 1:numel(required)
-        reqName = required(i);
-        reqNameAlt = strrep(reqName, '_', ' '); % For MathWorks toolboxes
-
-        found = any(strcmp(reqName, installed)) || any(strcmp(reqNameAlt, installed));
-        if ~found
-            missing{end+1} = char(reqName); %#ok<AGROW>
-        end
-    end
-
+    % Make sure installed and required are string arrays
+    installed = string(installed);
+    requiredAlt = strrep(required, '_', ' ');
+    
+    % Check for presence (either original or alternative name)
+    isPresent = ismember(required, installed) | ismember(requiredAlt, installed);
+    
+    % Find missing dependencies
+    missing = required(~isPresent);
+    
     if ~isempty(missing)
-        result = "Missing toolboxes: " + strjoin(missing, ", ");
-        error(result); % Fails the build task
-    else
-        result = "All dependencies are present.";
-        disp(result);
+        error("Missing toolboxes: " + strjoin(missing, ", "));
     end
+    disp("All dependencies are present.");
 end
-
-
 
 function publishTask(context)
     % Generate the html files
@@ -115,3 +124,31 @@ function publishTask(context)
         delete(matFiles{k});
     end
 end
+
+function getExamplesDrivenTesterTask(context)
+
+% Parameters
+fileExchangeId = 156374;   %File Exchange ID for ExamplesDrivenTester
+version = 0.91;          %modify to change version of the add-on
+
+% Generate metadata URL
+urlGen = matlab.addons.repositories.FileExchangeRepositoryUrlGenerator;
+url = urlGen.addonPackagesUrl(fileExchangeId, version);
+meta = webread(url);  
+
+isMltbx = arrayfun(@(p) strcmp(p.type, 'mltbx'), meta.packages);
+mltbxEntry = meta.packages(find(isMltbx, 1));
+if isempty(mltbxEntry)
+    error('No mltbx package found for this File Exchange ID/version.');
+end
+
+% Download the mltbx file
+websave(mltbxEntry.filename, mltbxEntry.url);
+
+% Install the toolbox
+matlab.addons.install(mltbxEntry.filename);
+
+disp(['Installed toolbox from ', mltbxEntry.url]);
+
+end
+
