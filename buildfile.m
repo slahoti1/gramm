@@ -8,9 +8,9 @@ plan("clean") = CleanTask;
 plan("check") = CodeIssuesTask(Results="issues.mat");
 plan("checkDependencies").Inputs = "dependencies.json";
 plan("package").Inputs = "gramm.prj";
-plan("publish").Inputs = "gramm\doc\";
+plan("publish").Inputs = fullfile(pwd, 'gramm', 'doc');
 
-%plan("publish").Outputs = ["gramm\html\*.html","images\*.png"];
+plan("publish").Outputs = ["gramm\html\*.html","images\*.png"];
 
 plan.DefaultTasks = "check";
 end
