@@ -6,14 +6,20 @@ plan = buildplan(localfunctions);
 
 plan("clean") = CleanTask;
 plan("check") = CodeIssuesTask(Results="issues.mat");
+plan("checkDependencies").Inputs = "dependencies.json";
+plan("package").Inputs = "gramm.prj";
+plan("publish").Inputs = "gramm\doc\";
 
-plan.DefaultTasks = ["check"];
+%plan("publish").Outputs = ["gramm\html\*.html","images\*.png"];
+
+plan.DefaultTasks = "check";
 end
 
 function packageTask(context)
 % Package the toolbox
     
-    packagingData = matlab.addons.toolbox.ToolboxOptions("gramm.prj");
+    prjFile = context.Task.Inputs.Path;
+    packagingData = matlab.addons.toolbox.ToolboxOptions(prjFile);
     % Update the version number with the github tag 
     tagVersion = getenv("CI_COMMIT_TAG"); 
     if ~isempty(tagVersion)
@@ -31,8 +37,8 @@ function packageTask(context)
     fprintf("Created %s.\n", outputFileName);
 end
 
-function examplesTask(context)
-% Run the examples as test
+function runExamplesTask(context)
+% Run examples as tests
     reportFormat = matlab.unittest.plugins.codecoverage.CoverageReport('coverage-report');
     covPlugin = matlab.unittest.plugins.CodeCoveragePlugin.forFolder("gramm","Producing",  reportFormat);
     etObj = examplesTester("gramm/examples", CodeCoveragePlugin = covPlugin);
@@ -43,7 +49,7 @@ function checkDependenciesTask(context)
 %Identify the missing dependencies
     
     % Check if dependencies.json exists
-    depFile = 'dependencies.json';
+    depFile = context.Task.Inputs.Path;
     if ~isfile(depFile)
         error('Dependency file "%s" not found in the current directory.', depFile);
     end
@@ -59,14 +65,13 @@ function checkDependenciesTask(context)
     if ~isfield(deps, 'products')
         error('"%s" is missing the required "products" field.', depFile);
     end
-
-    required = string(deps.products);
-
+    
     % Get installed addons/toolboxes
     installed = matlab.addons.installedAddons().Name;
 
     % Make sure installed and required are string arrays
     installed = string(installed);
+    required = string(deps.products);
     requiredAlt = strrep(required, '_', ' ');
     
     % Check for presence (either original or alternative name)
@@ -74,7 +79,6 @@ function checkDependenciesTask(context)
     
     % Find missing dependencies
     missing = required(~isPresent);
-    
     if ~isempty(missing)
         error("Missing toolboxes: " + strjoin(missing, ", "));
     end
@@ -82,73 +86,58 @@ function checkDependenciesTask(context)
 end
 
 function publishTask(context)
-    % Generate the html files
+    % Generate HTML documentation
 
     import matlab.buildtool.io.FileCollection
+    docFolder = context.Task.Inputs.Path;
 
-    % Use FileCollection to get .mlx files
-    fcMlx = FileCollection.fromPaths("gramm/doc/*.mlx");
-    mlxFiles = fcMlx.paths;
+    % Export the .mlx files to .html
+    mlxFiles = FileCollection.fromPaths(fullfile(docFolder, "*.mlx")).paths;
     destDir = fullfile(pwd, 'gramm', 'html');
-    for k = 1:numel(mlxFiles)
-        [~, name] = fileparts(mlxFiles{k});
-        src = mlxFiles{k};
-        dest = fullfile(destDir, [name '.html']);
-        export(src, dest, Run=true);
+    for mlxFile = mlxFiles
+        [~, name] = fileparts(mlxFile);
+        htmlFolder = fullfile(destDir, name + ".html");
+        export(mlxFile, htmlFolder, Run=true, EmbedImages=true);
     end
 
-    % Move the pngs from doc to image folder
-    dstDir = fullfile(pwd, 'images');
-    fcPng = FileCollection.fromPaths("gramm/doc/*.png");
-    pngFiles = fcPng.paths;
-    for k = 1:numel(pngFiles)
-        [~, name] = fileparts(pngFiles{k});
-        src = pngFiles{k};
-        dst = fullfile(dstDir, [name '.png']);
-        movefile(src, dst);
-    end
-
-    % We need to run it again to have correctly sized figures in the html pages
-    % (repeat for .mlx files)
-    for k = 1:numel(mlxFiles)
-        [~, name] = fileparts(mlxFiles{k});
-        src = mlxFiles{k};
-        dest = fullfile(destDir, [name '.html']);
-        export(src, dest);
+    %Move the pngs from doc to image folder
+    imageFolder = fullfile(pwd, 'images');
+    pngFiles = FileCollection.fromPaths(fullfile(docFolder, "*.png")).paths;
+    for pngFile = pngFiles
+        [~, name] = fileparts(pngFile);
+        movefile(pngFile, fullfile(imageFolder, name + ".png"));
     end
 
     % Remove downloaded sample data files
-    fcMat = FileCollection.fromPaths("gramm/doc/*.mat");
-    matFiles = fcMat.paths;
-    for k = 1:numel(matFiles)
-        delete(matFiles{k});
+    matFiles = FileCollection.fromPaths(fullfile(docFolder, "*.mat")).paths;
+    for matFile = matFiles
+        delete(matFile);
     end
 end
 
-function getExamplesDrivenTesterTask(context)
+function installAddonTask(context)
+%Install the ExamplesDrivenTester Addon
 
-% Parameters
 fileExchangeId = 156374;   %File Exchange ID for ExamplesDrivenTester
-version = 0.91;          %modify to change version of the add-on
+AddonReleaseversion = 0.91;          %modify to change version of the add-on
 
 % Generate metadata URL
 urlGen = matlab.addons.repositories.FileExchangeRepositoryUrlGenerator;
-url = urlGen.addonPackagesUrl(fileExchangeId, version);
-meta = webread(url);  
+url = urlGen.addonPackagesUrl(fileExchangeId, AddonReleaseversion);
+pkgMetadata = webread(url);  
 
-isMltbx = arrayfun(@(p) strcmp(p.type, 'mltbx'), meta.packages);
-mltbxEntry = meta.packages(find(isMltbx, 1));
-if isempty(mltbxEntry)
-    error('No mltbx package found for this File Exchange ID/version.');
+isMltbx = arrayfun(@(p) strcmp(p.type, 'mltbx'), pkgMetadata.packages);
+mltbxMetadata = pkgMetadata.packages(find(isMltbx, 1));
+if isempty(mltbxMetadata)
+    error('No mltbx package found.');
 end
 
 % Download the mltbx file
-websave(mltbxEntry.filename, mltbxEntry.url);
-
+websave(mltbxMetadata.filename, mltbxMetadata.url);
 % Install the toolbox
-matlab.addons.install(mltbxEntry.filename);
+matlab.addons.install(mltbxMetadata.filename);
 
-disp(['Installed toolbox from ', mltbxEntry.url]);
+disp(['Installed toolbox from ', mltbxMetadata.url]);
 
 end
 

@@ -31,7 +31,7 @@ jobs:
       - name: Get Additional Add-ons
         uses: matlab-actions/run-build@v2
         with:
-          tasks: getExamplesDrivenTester
+          tasks: installAddon
 
       - name: Check for dependencies
         uses: matlab-actions/run-build@v2
@@ -41,7 +41,7 @@ jobs:
       - name: Run examples as test
         uses: matlab-actions/run-build@v2
         with:
-           tasks: examples
+           tasks: runExamples
 
       - name: Upload test results
         if: always()
