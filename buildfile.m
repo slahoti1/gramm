@@ -48,6 +48,11 @@ end
 function checkDependenciesTask(context)
 %Identify the missing dependencies
     
+
+% NOTE: "dependencies.json" is a temporary workaround for current and older releases of MATLAB. 
+% We plan to release a "matlab.toml" file that will centralize project configuration and automatically manage and install dependencies. 
+% We hope you will adopt that solution once it becomes available.
+
     % Check if dependencies.json exists
     depFile = context.Task.Inputs.Path;
     if ~isfile(depFile)
@@ -118,26 +123,30 @@ end
 function installAddonTask(context)
 %Install the ExamplesDrivenTester Addon
 
-fileExchangeId = 156374;   %File Exchange ID for ExamplesDrivenTester
-AddonReleaseversion = 0.91;          %modify to change version of the add-on
+% NOTE: This is a temporary workaround for current and older releases of MATLAB. 
+% We plan to depricate this functionality in a future release with an alternate solution. 
+% We hope you will adopt that solution once it becomes available.
 
-% Generate metadata URL
-urlGen = matlab.addons.repositories.FileExchangeRepositoryUrlGenerator;
-url = urlGen.addonPackagesUrl(fileExchangeId, AddonReleaseversion);
-pkgMetadata = webread(url);  
-
-isMltbx = arrayfun(@(p) strcmp(p.type, 'mltbx'), pkgMetadata.packages);
-mltbxMetadata = pkgMetadata.packages(find(isMltbx, 1));
-if isempty(mltbxMetadata)
-    error('No mltbx package found.');
-end
-
-% Download the mltbx file
-websave(mltbxMetadata.filename, mltbxMetadata.url);
-% Install the toolbox
-matlab.addons.install(mltbxMetadata.filename);
-
-disp(['Installed toolbox from ', mltbxMetadata.url]);
+    fileExchangeId = 156374;   %File Exchange ID for ExamplesDrivenTester
+    AddonReleaseversion = 0.91;          %modify to change version of the add-on
+    
+    % Generate metadata URL
+    urlGen = matlab.addons.repositories.FileExchangeRepositoryUrlGenerator;
+    url = urlGen.addonPackagesUrl(fileExchangeId, AddonReleaseversion);
+    pkgMetadata = webread(url);  
+    
+    isMltbx = arrayfun(@(p) strcmp(p.type, 'mltbx'), pkgMetadata.packages);
+    mltbxMetadata = pkgMetadata.packages(find(isMltbx, 1));
+    if isempty(mltbxMetadata)
+        error('No mltbx package found.');
+    end
+    
+    % Download the mltbx file
+    websave(mltbxMetadata.filename, mltbxMetadata.url);
+    % Install the toolbox
+    matlab.addons.install(mltbxMetadata.filename);
+    
+    disp(['Installed toolbox from ', mltbxMetadata.url]);
 
 end
 
