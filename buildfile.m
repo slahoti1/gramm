@@ -50,7 +50,7 @@ function checkDependenciesTask(context)
     
 
 % NOTE: "dependencies.json" is a temporary workaround for current and older releases of MATLAB. 
-% We plan to release a "matlab.toml" file that will centralize project configuration and automatically manage and install dependencies. 
+% We plan to release "matlab.toml" that will centralize project configurations and manage dependencies. 
 % We hope you will adopt that solution once it becomes available.
 
     % Check if dependencies.json exists
